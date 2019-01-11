@@ -1,14 +1,17 @@
 
-var container = document.querySelector(".container"),
+let container = document.querySelector(".container"),
     deckTable = document.querySelector(".deck"),
     restart = document.querySelector(".restart"),
     movesCounter = document.querySelector(".moves"),
+    totalMoves = document.getElementById("totalMoves"),
+    totalMin = document.getElementById("totalMin"),
+    totalSec = document.getElementById("totalSec"),
+    totalStars = document.getElementById("totalStars"),
     star = document.getElementsByClassName("fa fa-star"),
     timer = document.getElementsByClassName("fa fa-timer"),
     modal = document.querySelector(".modal"),
     modalText = document.querySelector(".modal-text"),
-    playAgain = document.getElementsByTagName("button"),
-    playAgainButton = document.createElement("button"),
+    playAgain = document.getElementById("playAgain"),
     totalPairs = deckTable.childElementCount/2,
     matchedPairs = 0,
     numberOfMoves = 0,
@@ -20,7 +23,7 @@ var container = document.querySelector(".container"),
 
 //Shuffle function from http://stackoverflow.com/a/2450976
 function shuffle(array) {
-    var currentIndex = array.length,
+    let currentIndex = array.length,
         temporaryValue,
         randomIndex;
 
@@ -38,20 +41,23 @@ function shuffle(array) {
 // display clicked cards
 function showCards(event) {
     event.target.classList.add("open", "show");
-    openCards.push(event.target);  //save cards so we can compare them if they match
+    //save cards so we can compare them if they match
+    openCards.push(event.target);
 }
 
 // close mismatch cards
 function closeCards(event) {
     openCards.forEach(function(element) {
-      var defaultBgColor = element.style.backgroundColor;
+      let defaultBgColor = element.style.backgroundColor;
 
-      element.style.backgroundColor = "#DC143C";  // highlight mismatch cards
+      // highlight mismatch cards
+      element.style.backgroundColor = "#DC143C";
 
+      // set delay timer (milliseconds) before closing mismatch cards
       setTimeout(function() {
           element.classList.remove("open", "show");
           element.style.backgroundColor = defaultBgColor;
-      }, 800);  // set delay timer (milliseconds) before closing mismatch cards
+      }, 800);
     });
 }
 
@@ -68,7 +74,8 @@ function lockCards(event) {
     });
 
     // if the total open matched pairs === total pairs, game over
-    if (matchedPairs === totalPairs) {
+    // if (matchedPairs === totalPairs) {
+    if (matchedPairs === 1) {
       endGame();
     }
 }
@@ -76,42 +83,47 @@ function lockCards(event) {
 // check if the open pair of cards matched
 function matchCards (event) {
     if (openCards[0].firstElementChild.className === openCards[1].firstElementChild.className) {
-        lockCards(event);  //cards matched, keep both cards open
+        //cards matched, keep both cards open
+        lockCards(event);
     } else {
-        closeCards(event);  // card don't match, close both cards
+        // card don't match, close both cards
+        closeCards(event);
       }
 }
 
 // a card is clicked
 function cardClicked() {
-    if (event.target.className === "card") {  // card is closed if classlist does not have open, show, match attributes
-        showCards(event);                     // program does nothing unless user clicks on an a closed card
+    /* card is closed if classlist does not have open, show, match attributes.
+    program does nothing unless user clicks on an a closed card */
+    if (event.target.className === "card") {
+        showCards(event);
         countMoves();
-        if (numberOfMoves === 1) { // when the very first card is opened, start the game timer
-            gameTimer = setInterval(startGameTimer, 1000);  // timer interval in millisecond
+        // when the very first card is opened, start the game timer. timer interval in millisecond.
+        if (numberOfMoves === 1) {
+            gameTimer = setInterval(startGameTimer, 1000);
         }
-        // when 2 cards are opened, check if they match
-        // note: if user clicks too fast and opens more than 2 cards, only the first 2 are evaluated
+        /* when 2 cards are opened, check if they match
+        note: if user clicks too fast and opens more than 2 cards, only the first 2 are evaluated */
         if (openCards.length >= 2) {
             matchCards(event);
-            openCards = [];  //clear openCard tracker
+            //clear openCard tracker
+            openCards = [];
         }
     }
 }
 
-// count every valid click. only clicks made on a closed card counts. remove stars as the click count gets larger
+/* count every valid click. only clicks made on a closed card counts.
+remove stars as the click count gets larger */
 function countMoves() {
     numberOfMoves += 1;
     movesCounter.innerHTML = numberOfMoves;
-    switch (true) {
-        case (numberOfMoves > 55):
-            star[0].style.opacity = 0.1;
-            break;
-        case (numberOfMoves > 40):
+    switch (numberOfMoves) {
+        case 40:
             star[1].style.opacity = 0.1;
             break;
-        case (numberOfMoves > 25):
+        case 25:
             star[2].style.opacity = 0.1;
+            break;
     }
 
 }
@@ -134,21 +146,22 @@ function stopGameTimer() {
 
 // initialize game parameters and start a new game
 function initGame () {
-    var cardElements = document.querySelectorAll(".card"),
+    let cardElements = document.querySelectorAll(".card"),
         shuffledCards = shuffle(cardElements);
 
-    stopGameTimer();  // stop game timer if game is reset before it is completed
+    // stop game timer if game is reset before it is completed
+    stopGameTimer();
+    // reset counters and temporary variables
     min = 0;
     sec = 0;
     timer[0].innerHTML = ("Timer: " + min + "min " + sec + "sec");
-    matchedPairs = 0;   //reset match pair counter
-    numberOfMoves = 0;  //reset click or move counter
+    matchedPairs = 0;
+    numberOfMoves = 0;
     movesCounter.innerHTML = numberOfMoves;
 
     // reset game stars
-    for (let i =0; i < star.length; i++) {
-        star[i].style.opacity = 1;
-    }
+    star[1].style.opacity = 1;
+    star[2].style.opacity = 1;
 
     // reset card grid
     modal.style.display = "none";
@@ -165,11 +178,13 @@ function initGame () {
 
 // end of game stats
 function displayAccolades () {
+    let stars = document.querySelector(".stars").innerHTML;
+
     container.style.display = "none";
-    modalText.innerHTML = ("<b>Congatulations!!!</b> <br><br>You completed the game in <br>" +
-    numberOfMoves + " moves with a time of " + min +"min " + sec + "sec <br><br>");
-    playAgainButton.innerHTML = "Play Again!";
-    modalText.appendChild(playAgainButton);
+    totalMoves.innerHTML = numberOfMoves;
+    totalMin.innerHTML = min;
+    totalSec.innerHTML = sec;
+    totalStars.innerHTML = stars;
     modal.style.display = "block";
 }
 
@@ -191,4 +206,4 @@ restart.addEventListener('click', function(event) {
 deckTable.addEventListener('click', function(event) {cardClicked(event)});
 
 // click event listener for play again button
-playAgainButton.addEventListener('click', initGame);
+playAgain.addEventListener('click', initGame);
