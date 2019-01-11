@@ -74,8 +74,7 @@ function lockCards(event) {
     });
 
     // if the total open matched pairs === total pairs, game over
-    // if (matchedPairs === totalPairs) {
-    if (matchedPairs === 1) {
+    if (matchedPairs === totalPairs) {
       endGame();
     }
 }
